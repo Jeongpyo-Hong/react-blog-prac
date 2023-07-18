@@ -21,9 +21,12 @@ function App() {
   };
 
   // 좋아요
-  const [likeCnt, setLikeCnt] = useState(0);
-  const likeCntPlus = () => {
-    setLikeCnt(likeCnt + 1);
+  const [likeCnt, setLikeCnt] = useState([0, 0, 0]);
+  const likeCntPlus = (e, idx) => {
+    e.stopPropagation();
+    const copy = [...likeCnt];
+    copy[idx] = copy[idx] + 1;
+    setLikeCnt(copy);
   };
 
   // 정렬 '가나다순'
@@ -33,9 +36,11 @@ function App() {
   };
 
   // Modal창 상태
-  const [modal, setModal] = useState(false);
-  const modalToggle = () => {
-    setModal(!modal);
+  const [modal, setModal] = useState([false, false, false]);
+  const modalToggle = (idx) => {
+    const copy = [...modal];
+    copy[idx] = true;
+    setModal(copy);
   };
 
   return (
@@ -45,36 +50,33 @@ function App() {
       </div>
       <button onClick={changeTitle}>제목 변경</button>
       <button onClick={orderByAsc}>가나다 순으로 정렬</button>
-      <div className="list">
-        <h4 onClick={modalToggle}>
-          {title[0]} <span onClick={likeCntPlus}>👍</span>
-          {likeCnt}
-        </h4>
-        <p>2월 17일 발행</p>
-      </div>
-      <div className="list">
-        <h4>{title[1]}</h4>
-        <p>2월 17일 발행</p>
-      </div>
-      <div className="list">
-        <h4>{title[2]}</h4>
-        <p>2월 17일 발행</p>
-      </div>
+
+      {title.map((title, idx) => (
+        <div className="list" key={idx}>
+          <h4 onClick={() => modalToggle(idx)}>
+            {title} <span onClick={(e) => likeCntPlus(e, idx)}>👍</span>
+            {likeCnt[idx]}
+          </h4>
+          <p>2월 17일 발행</p>
+        </div>
+      ))}
 
       {/* Modal */}
-      {modal ? <Modal title={title} /> : null}
+      {title.map((title, idx) => (
+        <Modal title={title} key={idx} isShow={modal[idx]} />
+      ))}
     </div>
   );
 }
 
-const Modal = ({ title }) => {
-  return (
+const Modal = ({ title, isShow }) => {
+  return isShow ? (
     <div className="modal">
-      <h4>{title[0]}</h4>
+      <h4>{title}</h4>
       <p>날짜</p>
       <p>상세내용</p>
     </div>
-  );
+  ) : null;
 };
 
 export default App;
